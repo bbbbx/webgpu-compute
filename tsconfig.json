@@ -1,0 +1,9 @@
+{
+    "include": [
+        "./src"
+    ],
+    "compilerOptions": {
+        "lib": ["DOM", "ES2017"],
+        "typeRoots": ["./node_modules/@webgpu/types"]
+    }
+}

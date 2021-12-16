@@ -1,0 +1,15 @@
+{
+  "name": "webgpu-compute",
+  "version": "1.0.0",
+  "description": "A demo shows the WebGPU compute pipeline.",
+  "scripts": {
+    "dev": "tsc -p ./tsconfig.json --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@webgpu/types": "^0.1.9"
+  }
+}
