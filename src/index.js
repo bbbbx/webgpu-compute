@@ -38,12 +38,79 @@ var canvas = document.getElementById('canvas');
 var dpr = 1;
 canvas.width = window.innerWidth * dpr;
 canvas.height = window.innerHeight * dpr;
-var ctx = canvas.getContext('2d');
+// const ctx = canvas.getContext('2d');
+var ctx = canvas.getContext('webgpu');
 var width = canvas.width;
 var height = canvas.height;
 function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var adapter, device, queue, code, computeShaderModule, pixelsBufferSize, pixelsBuffer, resolutionBuffer, computePipeline, bindGroupLayout, bindGroup, commandEncoder, computePassEncoder, x, y, readBuffer, commandBuffer, out, uint8ClampArray, imagedata;
+        function compute(time) {
+            return __awaiter(this, void 0, void 0, function () {
+                var second, commandEncoder, stagingBuffer, computePassEncoder, x, y, readBuffer, src, dst, commandBuffer;
+                return __generator(this, function (_a) {
+                    second = time / 1000;
+                    commandEncoder = device.createCommandEncoder();
+                    stagingBuffer = device.createBuffer({
+                        usage: GPUBufferUsage.COPY_SRC | GPUBufferUsage.MAP_WRITE,
+                        size: Float32Array.BYTES_PER_ELEMENT * 1,
+                        mappedAtCreation: true
+                    });
+                    new Float32Array(stagingBuffer.getMappedRange()).set([second]);
+                    commandEncoder.copyBufferToBuffer(stagingBuffer, 0, timeBuffer, 0, Float32Array.BYTES_PER_ELEMENT * 1);
+                    stagingBuffer.unmap();
+                    {
+                        computePassEncoder = commandEncoder.beginComputePass();
+                        computePassEncoder.setPipeline(computePipeline);
+                        computePassEncoder.setBindGroup(0, bindGroup);
+                        x = Math.ceil(width / 8);
+                        y = Math.ceil(height / 8);
+                        computePassEncoder.dispatch(x, y);
+                        computePassEncoder.endPass();
+                    }
+                    readBuffer = device.createBuffer({
+                        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+                        size: pixelsBufferSize
+                    });
+                    commandEncoder.copyBufferToBuffer(pixelsBuffer, 0, readBuffer, 0, pixelsBufferSize);
+                    src = {
+                        "buffer": pixelsBuffer,
+                        "bytesPerRow": pixelsBufferSize / height
+                    };
+                    dst = {
+                        "texture": ctx.getCurrentTexture()
+                    };
+                    // commandEncoder.copyBufferToTexture(src, dst, {
+                    //   "width": width,
+                    //   "height": height,
+                    // });
+                    // commandEncoder.copyTextureToTexture(src,dst, {
+                    //   "width": width,
+                    //   "height": height,
+                    // })
+                    commandEncoder.copyBufferToTexture(src, dst, {
+                        "width": width,
+                        "height": height
+                    });
+                    commandBuffer = commandEncoder.finish();
+                    queue.submit([commandBuffer]);
+                    // await readBuffer.mapAsync(GPUMapMode.READ, 0, pixelsBufferSize);
+                    // const out = new Float32Array(readBuffer.getMappedRange());
+                    // function draw()
+                    // {
+                    //   const uint8ClampArray = new Uint8ClampedArray(out.map(v => v * 255));
+                    //   const imagedata = new ImageData(uint8ClampArray, width, height);
+                    //   // ctx.putImageData(imagedata, 0, 0);
+                    // }
+                    // draw()
+                    stagingBuffer.destroy();
+                    readBuffer.destroy();
+                    // console.log(second)
+                    requestAnimationFrame(compute);
+                    return [2 /*return*/];
+                });
+            });
+        }
+        var adapter, device, queue, code, computeShaderModule, pixelsBufferSize, pixelsBuffer, resolutionBuffer, timeBuffer, storageTexture, computePipeline, bindGroupLayout, bindGroup;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, navigator.gpu.requestAdapter()];
@@ -53,6 +120,11 @@ function main() {
                 case 2:
                     device = _a.sent();
                     queue = device.queue;
+                    ctx.configure({
+                        "device": device,
+                        "format": "bgra8unorm",
+                        "usage": GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
+                    });
                     return [4 /*yield*/, fetch("comp.wgsl").then(function (res) { return res.text(); })];
                 case 3:
                     code = _a.sent();
@@ -71,6 +143,21 @@ function main() {
                     });
                     new Uint32Array(resolutionBuffer.getMappedRange()).set([width, height]);
                     resolutionBuffer.unmap();
+                    timeBuffer = device.createBuffer({
+                        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+                        size: Float32Array.BYTES_PER_ELEMENT * 1
+                    });
+                    storageTexture = device.createTexture({
+                        "dimension": "2d",
+                        "format": "rgba8unorm",
+                        "mipLevelCount": 1,
+                        "sampleCount": 1,
+                        "size": {
+                            "width": width,
+                            "height": height
+                        },
+                        "usage": GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC
+                    });
                     computePipeline = device.createComputePipeline({
                         compute: {
                             module: computeShaderModule,
@@ -92,35 +179,20 @@ function main() {
                                 resource: {
                                     buffer: resolutionBuffer
                                 }
+                            },
+                            {
+                                binding: 2,
+                                resource: {
+                                    buffer: timeBuffer
+                                }
+                            },
+                            {
+                                binding: 3,
+                                resource: storageTexture.createView()
                             }
                         ]
                     });
-                    commandEncoder = device.createCommandEncoder();
-                    {
-                        computePassEncoder = commandEncoder.beginComputePass();
-                        computePassEncoder.setPipeline(computePipeline);
-                        computePassEncoder.setBindGroup(0, bindGroup);
-                        x = Math.ceil(width / 8);
-                        y = Math.ceil(height / 8);
-                        computePassEncoder.dispatch(x, y);
-                        computePassEncoder.endPass();
-                    }
-                    readBuffer = device.createBuffer({
-                        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
-                        size: pixelsBufferSize
-                    });
-                    commandEncoder.copyBufferToBuffer(pixelsBuffer, 0, readBuffer, 0, pixelsBufferSize);
-                    commandBuffer = commandEncoder.finish();
-                    queue.submit([commandBuffer]);
-                    return [4 /*yield*/, readBuffer.mapAsync(GPUMapMode.READ, 0, pixelsBufferSize)];
-                case 4:
-                    _a.sent();
-                    out = new Float32Array(readBuffer.getMappedRange());
-                    {
-                        uint8ClampArray = new Uint8ClampedArray(out.map(function (v) { return v * 255; }));
-                        imagedata = new ImageData(uint8ClampArray, width, height);
-                        ctx.putImageData(imagedata, 0, 0);
-                    }
+                    requestAnimationFrame(compute);
                     return [2 /*return*/];
             }
         });

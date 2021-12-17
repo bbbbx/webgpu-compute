@@ -7,8 +7,15 @@ struct Resolution {
     height: u32;
 };
 
+struct Time {
+    second: f32;
+};
+
 [[group(0), binding(0)]] var<storage, write> result: Out;
 [[group(0), binding(1)]] var<uniform> resolution: Resolution;
+[[group(0), binding(2)]] var<uniform> time: Time;
+[[group(0), binding(3)]] var tbuf: texture_storage_2d<rgba8unorm,write>;
+
 
 [[stage(compute), workgroup_size(8, 8)]]
 fn main([[builtin(global_invocation_id)]] global_id : vec3<u32>) {
@@ -30,11 +37,11 @@ fn main([[builtin(global_invocation_id)]] global_id : vec3<u32>) {
     let M: i32 = 128;
     for (var i: i32 = 0; i < M; i = i + 1)
     {
-    z = vec2<f32>(z.x*z.x - z.y*z.y, 2.*z.x*z.y) + c;
-    if (dot(z, z) > 2.0) {
-        break;
-    };
-    n = n + 1.0;
+        z = vec2<f32>(z.x*z.x - z.y*z.y, sin(time.second/10.)*2.*z.x*z.y) + c;
+        if (dot(z, z) > 2.0) {
+            break;
+        };
+        n = n + 1.0;
     }
 
     // we use a simple cosine palette to determine color:
@@ -44,7 +51,13 @@ fn main([[builtin(global_invocation_id)]] global_id : vec3<u32>) {
     let e = vec3<f32>(-0.2, -0.3 ,-0.5);
     let f = vec3<f32>(2.1, 2.0, 3.0);
     let g = vec3<f32>(0.0, 0.1, 0.0);
-    let color = vec4<f32>( d + e*cos( 6.28318*(f*t+g) ) ,1.0);
+    let color = vec4<f32>( d + e*cos( 6.28318*(f*t+g) ) ,1.0).bgra; //bgra
+    // let color = vec4<f32>(255.0, 255., 255., 255.);
+
+    var xx: i32 = i32(global_id.x);
+    var yy: i32 = i32(global_id.y);
+    let coords = vec2<i32>(xx, yy);
+    textureStore(tbuf, coords, color);
 
     let index = global_id.x + WIDTH * global_id.y;
     result.pixels[index] = color;
