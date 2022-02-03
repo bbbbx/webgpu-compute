@@ -7,16 +7,16 @@ struct Resolution {
     height: u32;
 };
 
-[[group(0), binding(0)]] var<storage, write> result: Out;
-[[group(0), binding(1)]] var<uniform> resolution: Resolution;
+@group(0) @binding(0) var<storage, write> result: Out;
+@group(0) @binding(1) var<uniform> resolution: Resolution;
 
-[[stage(compute), workgroup_size(8, 8)]]
-fn main([[builtin(global_invocation_id)]] global_id : vec3<u32>) {
+@stage(compute) @workgroup_size(8, 8)
+fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
     let WIDTH = resolution.width;
     let HEIGHT = resolution.height;
 
     if (global_id.x >= WIDTH || global_id.y >= HEIGHT) {
-    return;
+        return;
     }
 
     let x = f32(global_id.x) / f32(WIDTH - 1u);
@@ -30,11 +30,11 @@ fn main([[builtin(global_invocation_id)]] global_id : vec3<u32>) {
     let M: i32 = 128;
     for (var i: i32 = 0; i < M; i = i + 1)
     {
-    z = vec2<f32>(z.x*z.x - z.y*z.y, 2.*z.x*z.y) + c;
-    if (dot(z, z) > 2.0) {
-        break;
-    };
-    n = n + 1.0;
+        z = vec2<f32>(z.x*z.x - z.y*z.y, 2.*z.x*z.y) + c;
+        if (dot(z, z) > 2.0) {
+            break;
+        };
+        n = n + 1.0;
     }
 
     // we use a simple cosine palette to determine color:
