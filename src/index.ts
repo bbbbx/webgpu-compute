@@ -70,7 +70,7 @@ async function main() {
     const y = Math.ceil(height / 8);
     computePassEncoder.dispatch(x, y);
 
-    computePassEncoder.endPass();
+    computePassEncoder.end();
   }
 
   const readBuffer = device.createBuffer({

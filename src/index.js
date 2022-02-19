@@ -103,7 +103,7 @@ function main() {
                         x = Math.ceil(width / 8);
                         y = Math.ceil(height / 8);
                         computePassEncoder.dispatch(x, y);
-                        computePassEncoder.endPass();
+                        computePassEncoder.end();
                     }
                     readBuffer = device.createBuffer({
                         usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
