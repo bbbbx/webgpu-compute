@@ -43,7 +43,7 @@ var width = canvas.width;
 var height = canvas.height;
 function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var adapter, device, queue, code, computeShaderModule, pixelsBufferSize, pixelsBuffer, resolutionBuffer, computePipeline, bindGroupLayout, bindGroup, commandEncoder, computePassEncoder, x, y, readBuffer, commandBuffer, out, uint8ClampArray, imagedata;
+        var adapter, device, queue, code, computeShaderModule, pixelsBufferSize, pixelsBuffer, resolutionBuffer, computePipeline, bindGroupLayout, bindGroup, commandEncoder, computePassEncoder, x, y, end, readBuffer, commandBuffer, out, uint8ClampArray, imagedata;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, navigator.gpu.requestAdapter()];
@@ -103,7 +103,8 @@ function main() {
                         x = Math.ceil(width / 8);
                         y = Math.ceil(height / 8);
                         computePassEncoder.dispatch(x, y);
-                        computePassEncoder.end();
+                        end = (computePassEncoder.end || computePassEncoder.endPass);
+                        end.call(computePassEncoder);
                     }
                     readBuffer = device.createBuffer({
                         usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
@@ -127,5 +128,5 @@ function main() {
     });
 }
 main()["catch"](function (e) {
-    document.body.innerHTML = "".concat(e, ".<br /><br /> Your browser does not support WebGPU, please using Chrome version 100 or higher.");
+    document.body.innerHTML = "".concat(e, ".<br /><br /> Your browser does not support WebGPU, please using Chrome version 99 or higher.");
 });

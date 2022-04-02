@@ -70,7 +70,8 @@ async function main() {
     const y = Math.ceil(height / 8);
     computePassEncoder.dispatch(x, y);
 
-    computePassEncoder.end();
+    const end = (computePassEncoder.end || computePassEncoder.endPass);
+    end.call(computePassEncoder);
   }
 
   const readBuffer = device.createBuffer({
@@ -95,5 +96,5 @@ async function main() {
 
 main()
   .catch(e => {
-    document.body.innerHTML = `${e}.<br /><br /> Your browser does not support WebGPU, please using Chrome version 100 or higher.`;
+    document.body.innerHTML = `${e}.<br /><br /> Your browser does not support WebGPU, please using Chrome version 99 or higher.`;
   });
