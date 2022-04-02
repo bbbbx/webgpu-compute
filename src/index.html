@@ -16,6 +16,20 @@
 </head>
 <body>
   <canvas id="canvas"></canvas>
+  <script>
+    const origin = location.origin;
+    const map = {
+      // Valid Until 2022-5-14
+      'http://localhost:5500': 'ArdyD7AN7GBSL2vEQpKfYNCnZWB+q6B99znCJQsj1an+Pn69C1tyL+ki0DwoejwruzSy9n6nvsp0EcVjgHqVAwAAAABJeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjU1MDAiLCJmZWF0dXJlIjoiV2ViR1BVIiwiZXhwaXJ5IjoxNjYzNzE4Mzk5fQ==',
+      'https://bbbbx.github.io': 'Auq/Jee0dmmEBbho8fof5MzLMd1rmyRwdjT4HoU6m/MH/+Q/6/hPcBHC3z2ywSPBBU93BB6OuBtO8muHKRnvkAsAAABPeyJvcmlnaW4iOiJodHRwczovL2JiYmJ4LmdpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiV2ViR1BVIiwiZXhwaXJ5IjoxNjYzNzE4Mzk5fQ==',
+    };
+    if (map[origin]) {
+      const metaElem = document.createElement('meta');
+      metaElem.setAttribute('http-equiv', 'origin-trial');
+      metaElem.setAttribute('content', map[origin]);
+      document.head.append(metaElem);
+    }
+  </script>
   <script src="./index.js"></script>
 </body>
 </html>
