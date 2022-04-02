@@ -93,8 +93,7 @@ async function main() {
   }
 }
 
-if (!navigator.gpu) {
-  document.body.innerHTML = 'Your browser do not support WebGPU, consider using Chrome Canary and enable the Unsafe WebGPU flag.';
-} else {
-  main();
-}
+main()
+  .catch(e => {
+    document.body.innerHTML = `${e}.<br /><br /> Your browser does not support WebGPU, please using Chrome version 100 or higher.`;
+  });
