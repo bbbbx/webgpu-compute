@@ -1,16 +1,16 @@
 struct Out {
-    pixels: array<vec4<f32>>;
-};
+    pixels: array<vec4<f32>>,
+}
 
 struct Resolution {
-    width: u32;
-    height: u32;
+    width: u32,
+    height: u32,
 };
 
-@group(0) @binding(0) var<storage, write> result: Out;
+@group(0) @binding(0) var<storage, read_write> result: Out;
 @group(0) @binding(1) var<uniform> resolution: Resolution;
 
-@stage(compute) @workgroup_size(8, 8)
+@compute @workgroup_size(8, 8)
 fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
     let WIDTH = resolution.width;
     let HEIGHT = resolution.height;

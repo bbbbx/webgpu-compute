@@ -37,6 +37,7 @@ async function main() {
       module: computeShaderModule,
       entryPoint: 'main'
     },
+    layout: 'auto',
   });
 
   const bindGroupLayout = computePipeline.getBindGroupLayout(0);
@@ -68,10 +69,8 @@ async function main() {
 
     const x = Math.ceil(width / 8);
     const y = Math.ceil(height / 8);
-    computePassEncoder.dispatch(x, y);
-
-    const end = (computePassEncoder.end || computePassEncoder.endPass);
-    end.call(computePassEncoder);
+    computePassEncoder.dispatchWorkgroups(x, y);
+    computePassEncoder.end();
   }
 
   const readBuffer = device.createBuffer({
