@@ -95,5 +95,5 @@ async function main() {
 
 main()
   .catch(e => {
-    document.body.innerHTML = `${e}.<br /><br /> Your browser does not support WebGPU, please using Chrome version 99 or higher.`;
+    document.body.innerHTML = `${e}.<br /><br /> Your browser does not support WebGPU, please using Chrome version 105 or higher.`;
   });

@@ -128,5 +128,5 @@ function main() {
     });
 }
 main()["catch"](function (e) {
-    document.body.innerHTML = "".concat(e, ".<br /><br /> Your browser does not support WebGPU, please using Chrome version 99 or higher.");
+    document.body.innerHTML = "".concat(e, ".<br /><br /> Your browser does not support WebGPU, please using Chrome version 105 or higher.");
 });
